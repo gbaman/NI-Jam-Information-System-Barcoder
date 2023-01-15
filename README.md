@@ -1,5 +1,5 @@
 # NI Jam Information System Barcoder
-A clientside application that links to a NIJIS (NI Jam Information System) server, to print barcoded labels using a Brother QL-570 label printer.   
+A clientside application that links to a NIJIS ([NI Jam Information System](https://github.com/gbaman/NI-Jam-Information-System)) server, to print barcoded labels using a Brother QL-570 label printer.   
 The main use of the application is generating and printing equipment labels.   
 
 The following is required for the application to work:
