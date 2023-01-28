@@ -1,4 +1,8 @@
 import json
+import os
+import subprocess
+import tempfile
+from pathlib import Path
 
 import requests
 from flask import Flask, render_template, request
@@ -69,10 +73,20 @@ def add_equipment():
         return ""
 
 
-def generate_barcode_2(data):
+def generate_barcode_1(data):
     b = barcode.get('upc', str(data).zfill(12), writer=ImageWriter())
     b = UPCA(str(data).zfill(12), writer=ImageWriter())
     return b.render(writer_options={"module_width":0.5})
+
+
+def generate_barcode_2(data):
+    wd = Path(os.getcwd())
+    with tempfile.NamedTemporaryFile() as fp:
+        barcode_filename = fp.name
+        barcode_filename = wd / "label.png"
+        subprocess.run(["zint", "--scale", "10", "-d", str(data).zfill(4), "-o", barcode_filename])
+        image = Image.open(barcode_filename)
+        return image
 
 
 def create_label_image(equipment_entry_id, equipment_entry_number, equipment_name):
@@ -87,8 +101,9 @@ def create_label_image(equipment_entry_id, equipment_entry_number, equipment_nam
         img = Image.new('L', (991, 306), color='white')
 
     d = ImageDraw.Draw(img)
-    img.paste(barcode_image.resize((580, 195), Image.ANTIALIAS), (-40, 0))
-    w, h  = d.textsize(equipment_name, font=name_font)
+    #img.paste(barcode_image.resize((580, 195), Image.ANTIALIAS), (-40, 0))
+    img.paste(barcode_image.resize((500, 180), Image.ANTIALIAS), (20, 0))
+    w, h = d.textsize(equipment_name, font=name_font)
     d.text((190, 182), equipment_entry_number, fill="black", font=name_font)
     d.text(((500-w)/2, 212), equipment_name, fill="black", font=name_font)
     d.text((86, 245), organisation_name, fill="black", font=qr_font)
